@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300" fill="none">
+  <rect width="400" height="300" fill="#f3f4f6"/>
+  <g opacity="0.5">
+    <path d="M200 120c-22.091 0-40 17.909-40 40s17.909 40 40 40 40-17.909 40-40-17.909-40-40-40zm0 60c-11.046 0-20-8.954-20-20s8.954-20 20-20 20 8.954 20 20-8.954 20-20 20z" fill="#9ca3af"/>
+    <path d="M160 100h80v20h-80zM160 180h80v20h-80z" fill="#9ca3af"/>
+  </g>
+  <text x="200" y="250" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#6b7280">
+    News Image
+  </text>
+</svg>
