@@ -3,9 +3,45 @@ import type { IPInfo } from "@/lib/ip-utils";
 import { NewsCache } from "@/lib/cache";
 import { logger } from "@/lib/logger";
 import { config } from "@/lib/config";
+import { stripHtml, truncateText } from "@/lib/text-utils";
 
 // Enhanced cache for news data
 const newsCache = new NewsCache<NewsArticle[]>(config.cache.maxEntries, config.cache.duration);
+
+// Helper function to strip HTML tags and decode HTML entities
+function stripHtmlAndDecode(text: string): string {
+  if (!text) return "";
+  
+  // Remove HTML tags
+  let cleaned = text.replace(/<[^>]*>/g, "");
+  
+  // Decode common HTML entities
+  const htmlEntities: Record<string, string> = {
+    '&amp;': '&',
+    '&lt;': '<',
+    '&gt;': '>',
+    '&quot;': '"',
+    '&apos;': "'",
+    '&#39;': "'",
+    '&nbsp;': ' ',
+    '&hellip;': '...',
+    '&mdash;': '—',
+    '&ndash;': '–',
+    '&rsquo;': "'",
+    '&lsquo;': "'",
+    '&rdquo;': '"',
+    '&ldquo;': '"',
+  };
+  
+  for (const [entity, replacement] of Object.entries(htmlEntities)) {
+    cleaned = cleaned.replace(new RegExp(entity, 'g'), replacement);
+  }
+  
+  // Clean up extra whitespace
+  cleaned = cleaned.replace(/\s+/g, ' ').trim();
+  
+  return cleaned;
+}
 
 // Enhanced NewsData API interface with source information
 interface NewsDataArticle {
@@ -124,15 +160,20 @@ function convertNewsDataArticle(
 
   return {
     id: index + 1,
-    title: article.title,
-    summary:
+    title: stripHtmlAndDecode(article.title || ""),
+    summary: stripHtmlAndDecode(
       article.description ||
       article.content?.substring(0, 150) + "..." ||
-      "No description available",
+      "No description available"
+    ),
     category,
     time: timeAgo,
     location: locationDisplay,
     image: article.image_url || "/placeholder.svg?height=300&width=400",
+    url: article.link || "",
+    link: article.link || "",
+    content: stripHtmlAndDecode(article.content || article.description || ""),
+    source_name: article.source_name || article.source_id || "Unknown Source",
   };
 }
 
@@ -433,5 +474,56 @@ export async function getLocationSpecificNews(
   } catch (error) {
     logger.error(`Error fetching news for section ${section}`, {}, error as Error);
     return getFallbackNews(section);
+  }
+}
+
+// Search function using the new search API
+export async function searchNews(query: string): Promise<NewsArticle[]> {
+  if (!query || query.trim().length < 2) {
+    return [];
+  }
+
+  const cacheKey = `search:${query.toLowerCase().trim()}`;
+  
+  // Check cache first
+  const cached = newsCache.get(cacheKey);
+  if (cached) {
+    logger.info("Returning cached search results", { query, count: cached.length });
+    return cached;
+  }
+
+  try {
+    logger.info("Searching for news", { query });
+    
+    const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+    if (!response.ok) {
+      throw new Error(`Search API error: ${response.status}`);
+    }
+
+    const data: NewsDataResponse = await response.json();
+    
+    if (data.status !== "success" || !data.results) {
+      logger.warn("Search API returned no results", { query, status: data.status });
+      return [];
+    }
+
+    // Convert to our format
+    const articles = data.results.map((article, index) => 
+      convertNewsDataArticle(article, index, "Search Results")
+    );
+
+    // Cache the results
+    newsCache.set(cacheKey, articles);
+    
+    logger.info("Search completed successfully", { 
+      query, 
+      count: articles.length,
+      sources: data.sources 
+    });
+    
+    return articles;
+  } catch (error) {
+    logger.error("Search failed", { query }, error as Error);
+    return [];
   }
 }

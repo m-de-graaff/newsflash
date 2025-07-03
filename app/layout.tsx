@@ -29,37 +29,11 @@ export const metadata: Metadata = {
   title: "NewsFlash - Real-time News & Weather",
   description:
     "Stay informed with real-time breaking news, local weather, and personalized news updates from around the world.",
-  keywords: [
-    "news",
-    "breaking news",
-    "weather",
-    "real-time news",
-    "local news",
-    "world news",
-    "news aggregator",
-    "NewsFlash",
-  ],
-  authors: [{ name: "Mark de Graaff", url: "https://github.com/m-de-graaff" }],
-  creator: "Mark de Graaff",
-  openGraph: {
-    title: "NewsFlash - Real-time News & Weather",
-    description:
-      "Stay informed with real-time breaking news, local weather, and personalized news updates from around the world.",
-    url: "https://github.com/m-de-graaff/newsflash",
-    siteName: "NewsFlash",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "NewsFlash - Real-time News & Weather",
-    description:
-      "Stay informed with real-time breaking news, local weather, and personalized news updates from around the world.",
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
-  viewport: "width=device-width, initial-scale=1",
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({

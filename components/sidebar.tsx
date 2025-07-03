@@ -11,8 +11,10 @@ interface SidebarProps {
   location: IPInfo | null;
   searchQuery: string;
   onSearchChange: (query: string) => void;
+  onSearchClear: () => void;
   weatherLocation: string;
   onWeatherLocationChange: (location: string) => void;
+  searchLoading?: boolean;
 }
 
 export function Sidebar({
@@ -20,13 +22,21 @@ export function Sidebar({
   location,
   searchQuery,
   onSearchChange,
+  onSearchClear,
   weatherLocation,
   onWeatherLocationChange,
+  searchLoading = false,
 }: SidebarProps) {
   return (
     <div className="lg:col-span-1 p-8 space-y-8 bg-background border-r border-border dark:border-border">
       <Header currentTime={currentTime} location={location} />
-      <SearchBar value={searchQuery} onChange={onSearchChange} />
+      <SearchBar 
+        value={searchQuery} 
+        onChange={onSearchChange} 
+        onClear={onSearchClear}
+        isLoading={searchLoading}
+        placeholder="Search news articles..."
+      />
       <WeatherWidget
         location={weatherLocation}
         onLocationChange={onWeatherLocationChange}

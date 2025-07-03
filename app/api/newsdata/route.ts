@@ -667,6 +667,7 @@ export async function GET(request: NextRequest) {
         content: article.content,
         pubDate: article.publishedAt,
         image_url: article.urlToImage,
+        link: article.url, // NewsAPI uses url field
         source_id: article.source.name,
         // Use the actual source name from NewsAPI
         source_name: article.source.name || "Unknown Source",
@@ -696,6 +697,7 @@ export async function GET(request: NextRequest) {
         content: article.fields?.body,
         pubDate: article.webPublicationDate,
         image_url: article.fields?.thumbnail,
+        link: article.webUrl, // Guardian uses webUrl field
         source_id: "the-guardian",
         source_name: "The Guardian",
         source_type: "guardian",

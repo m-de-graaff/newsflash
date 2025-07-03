@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { useDebounce } from "@/hooks/useDebounce";
 import { BreakingNews } from "@/components/breaking-news";
 import { Sidebar } from "@/components/sidebar";
 import { SectionNavigation } from "@/components/section-navigation";
 import { NewsGrid } from "@/components/news-grid";
-import { getBreakingNews, getLocationSpecificNews } from "@/lib/news-data";
+import { getBreakingNews, getLocationSpecificNews, searchNews } from "@/lib/news-data";
 import { getSectionKeys } from "@/lib/location-hierarchy";
 import type { NewsArticle } from "@/components/news-grid";
 
@@ -25,7 +26,13 @@ export default function NewsFlash() {
     "Connecting to news sources...",
   ]);
   const [newsArticles, setNewsArticles] = useState<NewsArticle[]>([]);
+  const [searchResults, setSearchResults] = useState<NewsArticle[]>([]);
   const [newsLoading, setNewsLoading] = useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [isSearchMode, setIsSearchMode] = useState(false);
+
+  // Debounce search query with 500ms delay
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
   // Handle hydration
   useEffect(() => {
@@ -69,6 +76,37 @@ export default function NewsFlash() {
     return () => clearInterval(interval);
   }, []);
 
+  // Perform search when debounced query changes
+  useEffect(() => {
+    const performSearch = async () => {
+      if (debouncedSearchQuery.trim().length >= 2) {
+        setSearchLoading(true);
+        setIsSearchMode(true);
+        try {
+          const results = await searchNews(debouncedSearchQuery);
+          setSearchResults(results);
+        } catch (error) {
+          console.error("Search error:", error);
+          setSearchResults([]);
+        } finally {
+          setSearchLoading(false);
+        }
+      } else if (debouncedSearchQuery.trim().length === 0) {
+        setIsSearchMode(false);
+        setSearchResults([]);
+      }
+    };
+
+    performSearch();
+  }, [debouncedSearchQuery]);
+
+  // Handle search clear
+  const handleSearchClear = () => {
+    setSearchQuery("");
+    setIsSearchMode(false);
+    setSearchResults([]);
+  };
+
   // Fetch news when location or section changes
   useEffect(() => {
     const fetchNews = async () => {
@@ -91,13 +129,9 @@ export default function NewsFlash() {
     }
   }, [location, activeSection, isLoading]);
 
-  const filteredNews = newsArticles.filter(
-    (article) =>
-      !searchQuery ||
-      article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Determine which articles to display
+  const displayArticles = isSearchMode ? searchResults : newsArticles;
+  const displayLoading = isSearchMode ? searchLoading : newsLoading;
 
   if (!mounted) {
     return null;
@@ -130,21 +164,23 @@ export default function NewsFlash() {
             location={location}
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
+            onSearchClear={handleSearchClear}
             weatherLocation={weatherLocation}
             onWeatherLocationChange={setWeatherLocation}
+            searchLoading={searchLoading}
           />
 
           <div className="lg:col-span-3 bg-background">
             <SectionNavigation
               activeSection={activeSection}
               onSectionChange={setActiveSection}
-              articleCount={filteredNews.length}
+              articleCount={displayArticles.length}
               location={location}
             />
 
             <NewsGrid
-              articles={filteredNews}
-              isLoading={newsLoading || (locationLoading && activeSection > 0)}
+              articles={displayArticles}
+              isLoading={displayLoading || (locationLoading && activeSection > 0)}
             />
           </div>
         </div>
