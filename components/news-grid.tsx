@@ -62,10 +62,10 @@ export function NewsGrid({ articles, isLoading = false }: NewsGridProps) {
         {articles.map((article, index) => (
           <Card
             key={article.id}
-            className="border-0 bg-card hover:bg-accent/50 cursor-pointer group transition-all duration-300 animate-in fade-in duration-700"
-            style={{ animationDelay: `${index * 100}ms` }}
+            className="border-0 bg-card hover:shadow-lg transition-all duration-300 group cursor-pointer hover:bg-card/80"
+            style={{ animationDelay: `${index * 50}ms` }}
           >
-            <div className="aspect-video relative overflow-hidden rounded-t-lg">
+            <div className="relative aspect-video overflow-hidden rounded-t-lg">
               <img
                 src={article.image || "/placeholder.svg"}
                 alt={article.title}
@@ -73,19 +73,19 @@ export function NewsGrid({ articles, isLoading = false }: NewsGridProps) {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
               <div className="absolute bottom-4 left-4 right-4">
-                <Badge className="mb-2 text-xs bg-secondary text-secondary-foreground">
+                <Badge className="mb-2 text-xs bg-secondary/90 text-secondary-foreground backdrop-blur-sm">
                   {article.category}
                 </Badge>
-                <h3 className="text-white font-semibold text-sm leading-tight line-clamp-2">
+                <h3 className="text-white font-semibold text-sm leading-tight line-clamp-2 group-hover:text-white/90 transition-colors">
                   {article.title}
                 </h3>
               </div>
             </div>
             <CardContent className="p-4">
-              <p className="text-sm line-clamp-2 mb-3 text-muted-foreground">
+              <p className="text-sm line-clamp-2 mb-3 text-muted-foreground group-hover:text-foreground/80 transition-colors">
                 {article.summary}
               </p>
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <div className="flex items-center justify-between text-xs text-muted-foreground group-hover:text-foreground/70 transition-colors">
                 <div className="flex items-center space-x-1">
                   <MapPin className="h-3 w-3" />
                   <span>{article.location}</span>

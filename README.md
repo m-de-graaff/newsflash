@@ -110,6 +110,12 @@ See [SECURITY.md](./SECURITY.md) for comprehensive security documentation.
 - Build with `npm run build`
 - Serve the `.next` directory
 
+## 👨‍💻 Author
+
+**Mark de Graaff**
+- GitHub: [@m-de-graaff](https://github.com/m-de-graaff)
+- Repository: [NewsFlash](https://github.com/m-de-graaff/newsflash)
+
 ## 🤝 Contributing
 
 1. Fork the repository
@@ -124,4 +130,4 @@ MIT License - see LICENSE file for details
 
 ---
 
-Built with ❤️ for reliable, secure news aggregation
+Built with ❤️ by [Mark de Graaff](https://github.com/m-de-graaff) for reliable, secure news aggregation

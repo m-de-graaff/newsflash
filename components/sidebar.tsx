@@ -3,6 +3,7 @@
 import { Header } from "./header";
 import { SearchBar } from "./search-bar";
 import { WeatherWidget } from "./weather-widget";
+import { MadeByTile } from "./made-by-tile";
 import type { IPInfo } from "@/lib/ip-utils";
 
 interface SidebarProps {
@@ -30,6 +31,7 @@ export function Sidebar({
         location={weatherLocation}
         onLocationChange={onWeatherLocationChange}
       />
+      <MadeByTile />
     </div>
   );
 }
